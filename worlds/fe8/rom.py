@@ -24,6 +24,10 @@ from .connector_config import (
     SUPER_DEMON_KING_OFFS,
     LOCKPICK_USABILITY_OFFS,
     DEATH_LINK_KIND_OFFS,
+    LEVEL_CAPS_OFFS,
+    WEAPON_LEVEL_CAPS_OFFS,
+    PROMOTION_UNLOCKS_OFFS,
+    RECRUIT_CHECKS_OFFS,
     LOCATION_INFO_OFFS,
     LOCATION_INFO_SIZE,
 )
@@ -152,5 +156,18 @@ def write_tokens(world: "FE8World", patch: FE8ProcedurePatch):
     patch.write_byte(SUPER_DEMON_KING_OFFS, int(bool(options.super_demon_king)))
     patch.write_byte(LOCKPICK_USABILITY_OFFS, int(options.lockpick_usability))
     patch.write_byte(DEATH_LINK_KIND_OFFS, int(options.death_link))
+
+    # The ROM defaults every one of these flags to 0 (`archipelagoOptions` is
+    # zero-initialized), so each one must be written explicitly.
+    #
+    # Level caps and weapon levels are always part of the item pool, so the ROM
+    # must always enforce them. Promotion permits have no world option yet.
+    # `recruitChecksEnabled` tells the ROM whether deploy permits are in play:
+    # when 0 it lets every unit be deployed, when 1 it gates deployment on the
+    # permit items.
+    patch.write_byte(LEVEL_CAPS_OFFS, 1)
+    patch.write_byte(WEAPON_LEVEL_CAPS_OFFS, 1)
+    patch.write_byte(PROMOTION_UNLOCKS_OFFS, 0)
+    patch.write_byte(RECRUIT_CHECKS_OFFS, int(bool(options.recruit_checks_enabled)))
 
     patch.write_file("token_data.bin", patch.get_token_binary())
